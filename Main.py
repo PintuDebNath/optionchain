@@ -1,6 +1,9 @@
+from flask import Flask,jsonify
 import requests
 import pandas as pd
+import numpy as np
 import time
+import json
 
 url = 'https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY'
 
@@ -42,8 +45,24 @@ def dataframe():
     optionchain = pd.DataFrame(data)
     return optionchain
 
-
 optionchain = dataframe()
-print(optionchain['CALL CHNG OI'])
+app = Flask(__name__)
 
+@app.route('/')
+def hello_world():
+    return "work"
+@app.route('/optionchaindata/<string>')
+def armstrong(string):
+    fulldata = []
+    for ind in optionchain.index:
+        fulldata.append(optionchain[str(string)][ind])
+
+    id = 0;
+    finaldata = {}
+    for x in fulldata:
+        finaldata.update({str(id):str(x)})
+        id = id+1
+    return finaldata
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port="5000")
 
